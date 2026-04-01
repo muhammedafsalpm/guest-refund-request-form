@@ -34,7 +34,7 @@ Reason: ${submission.refundReason}
     
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(22);
-    doc.text('DELUXE HOLIDAY HOMES', 105, 20, { align: 'center' });
+    doc.text('DELUXE STAYS', 105, 20, { align: 'center' });
     doc.setFontSize(14);
     doc.text('REFUND REQUEST SUMMARY', 105, 30, { align: 'center' });
     
@@ -72,7 +72,7 @@ Reason: ${submission.refundReason}
     y += (splitText.length * 7) + 10;
     doc.setFontSize(10);
     doc.setTextColor(108, 117, 125);
-    doc.text('Thank you for choosing Deluxe Homes. We will review your request shortly.', 105, 280, { align: 'center' });
+    doc.text('Thank you for choosing Deluxe Stays. We will review your request shortly.', 105, 280, { align: 'center' });
     
     doc.save(`refund-${submission.ticketNumber}.pdf`);
   };
@@ -146,8 +146,7 @@ Reason: ${submission.refundReason}
               
               <div className="space-y-1">
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Booking Ref</p>
-                <p className="text-gray-900 font-mono font-bold flex items-center">
-                  <Hash className="h-4 w-4 mr-2 text-deluxe-blue/60" />
+                <p className="text-gray-900 font-mono font-bold">
                   {submission.bookingReference}
                 </p>
               </div>
@@ -224,7 +223,7 @@ Reason: ${submission.refundReason}
                   <div className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse" />
                   Estimated Review: 2-3 Business Days
                 </div>
-                <span>© Deluxe Homes</span>
+                <span>© Deluxe Stays</span>
              </div>
           </div>
         </div>

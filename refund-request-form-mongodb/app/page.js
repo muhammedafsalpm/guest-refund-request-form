@@ -173,8 +173,7 @@ export default function RefundForm() {
               </div>
             </div>
             <div className="hidden md:block">
-              <div className="text-[10px] text-gray-400 uppercase tracking-widest text-right">Reference No.</div>
-              <div className="text-xs font-mono text-gray-400">DX-TMP-2026</div>
+              {/* Reference number placeholder removed */}
             </div>
           </div>
           
@@ -205,7 +204,7 @@ export default function RefundForm() {
                     value={formData.fullName}
                     onChange={handleInputChange}
                     className={`form-input pl-12 ${errors.fullName ? 'border-red-600 ring-1 ring-red-600' : ''}`}
-                    placeholder="Abdul Rahman"
+                    placeholder="Omar Khalid Al-Farsi"
                     disabled={submitting}
                   />
                 </div>
@@ -226,7 +225,7 @@ export default function RefundForm() {
                     value={formData.email}
                     onChange={handleInputChange}
                     className={`form-input pl-12 ${errors.email ? 'border-red-600 ring-1 ring-red-600' : ''}`}
-                    placeholder="abdulrahman@example.com"
+                    placeholder="omar.farsi@email.com"
                     disabled={submitting}
                   />
                 </div>
@@ -241,14 +240,13 @@ export default function RefundForm() {
                   Booking Reference *
                 </label>
                 <div className="relative group">
-                  <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-deluxe-blue transition-colors duration-200" />
                   <input
                     type="text"
                     id="bookingReference"
                     name="bookingReference"
                     value={formData.bookingReference}
                     onChange={handleInputChange}
-                    className={`form-input pl-12 ${errors.bookingReference ? 'border-red-600 ring-1 ring-red-600' : ''}`}
+                    className={`form-input focus:ring-deluxe-blue border-gray-200 ${errors.bookingReference ? 'border-red-600 ring-1 ring-red-600' : ''}`}
                     placeholder="REF-123456"
                     disabled={submitting}
                   />
@@ -372,7 +370,7 @@ export default function RefundForm() {
         
         {/* Footer */}
         <div className="mt-12 text-center text-[10px] uppercase font-bold text-gray-400 tracking-[0.2em] space-x-4">
-          <span>© 2025 Deluxe Holiday Homes</span>
+          <span>© 2026 Deluxe Stays</span>
           <span className="text-gray-200">|</span>
           <a href="#" className="hover:text-deluxe-blue transition">Privacy Policy</a>
           <span className="text-gray-200">|</span>
