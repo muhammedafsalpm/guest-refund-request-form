@@ -13,7 +13,9 @@ export const metadata = {
   description: 'Submit a refund request for your booking with Deluxe Stays. We value your satisfaction and will review your request promptly.',
   keywords: 'refund, booking, guest, request, deluxe stays',
   icons: {
-    icon: '/icon.png',
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
   },
 };
 
