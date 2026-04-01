@@ -1,160 +1,204 @@
-import { CheckCircle, Printer, Download, Copy, Mail, RefreshCcw, Calendar, User, FileText, Hash, Clock, ExternalLink } from 'lucide-react';
+'use client';
+
+import { CheckCircle, Download, Printer, Copy } from 'lucide-react';
+import { useState } from 'react';
 
 export default function SuccessSummary({ submission, onReset }) {
-  const copyToClipboard = () => {
-    const text = `Refund Request Summary\nTicket: ${submission.ticketNumber}\nName: ${submission.fullName}\nEmail: ${submission.email}\nReference: ${submission.bookingReference}`;
-    navigator.clipboard.writeText(text);
-    alert('Summary copied to clipboard!');
-  };
+  const [copied, setCopied] = useState(false);
 
   const handlePrint = () => window.print();
+  
+  const handleCopy = () => {
+    const content = `
+REFUND REQUEST SUMMARY
+Ticket: ${submission.ticketNumber}
+Submitted: ${submission.submittedAt}
+Name: ${submission.fullName}
+Email: ${submission.email}
+Booking: ${submission.bookingReference}
+Date: ${submission.bookingDate}
+Reason: ${submission.refundReason}
+    `;
+    navigator.clipboard.writeText(content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownload = () => {
+    const content = `DELUXE HOMES - REFUND REQUEST SUMMARY
+=========================================
+Ticket Number: ${submission.ticketNumber}
+Submitted: ${submission.submittedAt}
+
+GUEST INFORMATION
+-----------------
+Full Name: ${submission.fullName}
+Email: ${submission.email}
+
+BOOKING DETAILS
+---------------
+Reference: ${submission.bookingReference}
+Booking Date: ${submission.bookingDate}
+
+REFUND DETAILS
+--------------
+Reason: ${submission.refundReason}
+Additional Details: ${submission.additionalDetails || 'None provided'}
+
+EVIDENCE
+--------
+${submission.evidenceUrl ? '✓ Evidence uploaded' : '✗ No evidence provided'}
+
+STATUS: Pending Review
+=========================================
+Thank you for choosing Deluxe Homes. We'll review your request within 2-3 business days.
+    `;
+    
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `refund-${submission.ticketNumber}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   return (
-    <div className="animate-fade-in max-w-4xl mx-auto px-4 py-8">
-      {/* Background Decor */}
-      <div className="blob left-[-10%] top-[-10%] opacity-20"></div>
-      <div className="blob right-[-10%] bottom-[-10%] bg-purple-500/10 opacity-20"></div>
-
-      <div className="glass-card rounded-[2.5rem] overflow-hidden shadow-2xl bg-white/80 backdrop-blur-xl border border-white/50">
-        {/* Header Section */}
-        <div className="success-gradient p-10 text-center text-white relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[radial-gradient(circle_at_center,_white_1px,_transparent_1px)] bg-[size:20px_20px]"></div>
-          <div className="relative z-10">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl mb-6 border border-white/30 animate-pulse-slow">
-              <CheckCircle className="h-10 w-10 text-white" />
-            </div>
-            <h1 className="text-4xl font-black tracking-tight mb-2">Request submitted!</h1>
-            <p className="text-emerald-50/80 font-medium max-w-md mx-auto">
-              Your refund request has been securely logged and is being reviewed by our team.
-            </p>
-            <div className="mt-6 inline-flex items-center space-x-2 px-4 py-2 bg-black/20 rounded-2xl border border-white/10 backdrop-blur-sm">
-              <Hash className="h-4 w-4 text-emerald-300" />
-              <span className="text-sm font-mono font-bold tracking-wider">{submission.ticketNumber}</span>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-2xl mx-auto">
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden animate-fade-up">
+          {/* Success Header */}
+          <div className="relative bg-deluxe-navy px-6 py-12 text-center">
+            <div className="absolute inset-0 bg-black opacity-10"></div>
+            <div className="relative">
+              <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-white mb-4">
+                <CheckCircle className="h-10 w-10 text-deluxe-blue" />
+              </div>
+              <h2 className="text-2xl font-display font-bold text-white mb-2">
+                Refund Request Submitted
+              </h2>
+              <p className="text-blue-100">
+                We've received your request and will review it promptly
+              </p>
+              <p className="text-white text-sm mt-3 font-mono bg-blue-900/50 inline-block px-4 py-2 rounded-lg">
+                Reference: {submission.ticketNumber}
+              </p>
             </div>
           </div>
-        </div>
-
-        {/* Content Section */}
-        <div className="p-8 md:p-12 space-y-10">
-          <div>
-            <h2 className="flex items-center text-xl font-black text-slate-800 mb-6 group">
-              <span className="w-1.5 h-6 bg-emerald-500 rounded-full mr-3 group-hover:scale-y-125 transition-transform"></span>
+          
+          {/* Submission Details */}
+          <div className="px-6 py-8">
+            <h3 className="text-lg font-display font-bold text-deluxe-navy mb-4">
               Submission Summary
-            </h2>
+            </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-              <SummaryItem icon={<User />} label="Full Name" value={submission.fullName} />
-              <SummaryItem icon={<Mail />} label="Email Address" value={submission.email} />
-              <SummaryItem icon={<Hash />} label="Booking Reference" value={submission.bookingReference} />
-              <SummaryItem icon={<Calendar />} label="Booking Date" value={submission.bookingDate} />
-              <SummaryItem icon={<FileText />} label="Refund Reason" value={submission.refundReason} isBadge />
-              <SummaryItem icon={<Clock />} label="Submitted At" value={submission.submittedAt} />
-            </div>
-
-            {submission.additionalDetails && (
-              <div className="mt-8 p-6 bg-slate-50/50 rounded-3xl border border-slate-100 backdrop-blur-sm">
-                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Additional Details</p>
-                <p className="text-slate-600 leading-relaxed italic">"{submission.additionalDetails}"</p>
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-gray-100">
+                <dt className="font-bold text-gray-600 font-sans uppercase text-[10px] tracking-wider">Ticket Number</dt>
+                <dd className="col-span-2 font-mono text-deluxe-blue font-bold">{submission.ticketNumber}</dd>
               </div>
-            )}
-
-            {submission.evidenceUrl && (
-              <div className="mt-6">
-                <a 
-                  href={submission.evidenceUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-sm font-bold hover:bg-blue-100 transition-colors border border-blue-100"
+              
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-gray-100">
+                <dt className="font-bold text-gray-600 font-sans uppercase text-[10px] tracking-wider">Submitted</dt>
+                <dd className="col-span-2 text-gray-900">{submission.submittedAt}</dd>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-gray-100">
+                <dt className="font-bold text-gray-600 font-sans uppercase text-[10px] tracking-wider">Guest Name</dt>
+                <dd className="col-span-2 text-gray-900">{submission.fullName}</dd>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-gray-100">
+                <dt className="font-bold text-gray-600 font-sans uppercase text-[10px] tracking-wider">Email</dt>
+                <dd className="col-span-2 text-gray-900">{submission.email}</dd>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-gray-100">
+                <dt className="font-bold text-gray-600 font-sans uppercase text-[10px] tracking-wider">Booking Reference</dt>
+                <dd className="col-span-2 font-mono text-gray-900">{submission.bookingReference}</dd>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-gray-100">
+                <dt className="font-bold text-gray-600 font-sans uppercase text-[10px] tracking-wider">Booking Date</dt>
+                <dd className="col-span-2 text-gray-900">{submission.bookingDate}</dd>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-gray-100">
+                <dt className="font-bold text-gray-600 font-sans uppercase text-[10px] tracking-wider">Refund Reason</dt>
+                <dd className="col-span-2">
+                  <span className="inline-flex px-3 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-deluxe-blue uppercase tracking-wider">
+                    {submission.refundReason}
+                  </span>
+                </dd>
+              </div>
+              
+              {submission.additionalDetails && (
+                <div className="py-2">
+                  <dt className="font-bold text-gray-600 font-sans uppercase text-[10px] tracking-wider mb-2">Additional Details</dt>
+                  <dd className="text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg text-sm italic">
+                    "{submission.additionalDetails}"
+                  </dd>
+                </div>
+              )}
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="mt-8 space-y-4">
+              <div className="grid grid-cols-3 gap-3">
+                <button
+                  onClick={handleDownload}
+                  className="inline-flex justify-center items-center px-4 py-3 border border-gray-200 rounded-lg text-xs font-bold text-gray-700 bg-white hover:bg-gray-50 transition uppercase tracking-wider"
                 >
-                  <ExternalLink className="h-4 w-4" />
-                  <span>View Attached Evidence</span>
-                </a>
+                  <Download className="h-4 w-4 mr-2 text-deluxe-blue" />
+                  Download
+                </button>
+                <button
+                  onClick={handlePrint}
+                  className="inline-flex justify-center items-center px-4 py-3 border border-gray-200 rounded-lg text-xs font-bold text-gray-700 bg-white hover:bg-gray-50 transition uppercase tracking-wider"
+                >
+                  <Printer className="h-4 w-4 mr-2 text-deluxe-blue" />
+                  Print
+                </button>
+                <button
+                  onClick={handleCopy}
+                  className="inline-flex justify-center items-center px-4 py-3 border border-gray-200 rounded-lg text-xs font-bold text-gray-700 bg-white hover:bg-gray-50 transition uppercase tracking-wider"
+                >
+                  <Copy className="h-4 w-4 mr-2 text-deluxe-blue" />
+                  {copied ? 'Copied' : 'Copy'}
+                </button>
               </div>
-            )}
-          </div>
-
-          <div className="h-px bg-slate-100 w-full"></div>
-
-          {/* Action Grid */}
-          <div className="space-y-6">
-            <p className="text-center text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Manage your request</p>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <ActionButton icon={<Download />} label="Download" onClick={() => alert('Summary generated!')} />
-              <ActionButton icon={<Printer />} label="Print" onClick={handlePrint} />
-              <ActionButton icon={<Copy />} label="Copy Info" onClick={copyToClipboard} />
-              <ActionButton icon={<Mail />} label="Email Me" onClick={() => alert('Confirmation email sent!')} />
+              
+              <button
+                onClick={onReset}
+                className="btn-primary"
+              >
+                Submit Another Request
+              </button>
             </div>
-          </div>
-
-          <button
-            onClick={onReset}
-            className="w-full flex items-center justify-center space-x-3 py-5 px-6 rounded-3xl bg-slate-900 text-white font-bold hover:bg-black transition-all hover:shadow-2xl hover:scale-[1.01] active:scale-[0.98]"
-          >
-            <RefreshCcw className="h-5 w-5" />
-            <span>Submit Another Request</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Footer Instructions */}
-      <div className="mt-10 animate-fade-in delay-300">
-        <div className="glass-card bg-white/40 rounded-[2rem] p-8 border-white/60 backdrop-blur-md">
-          <div className="flex items-center space-x-3 mb-6">
-            <div className="flex items-center justify-center w-10 h-10 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-200">
-              <Clock className="h-5 w-5" />
-            </div>
-            <h3 className="text-lg font-black text-slate-800">What happens next?</h3>
-          </div>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="relative p-6 bg-white/60 rounded-3xl border border-white shadow-sm hover:shadow-md transition-shadow">
-               <span className="absolute -top-3 -left-2 w-8 h-8 flex items-center justify-center bg-slate-900 text-white text-xs font-black rounded-xl">01</span>
-               <p className="text-sm font-medium text-slate-600 leading-relaxed pt-2">
-                 Our internal auditing team will verify your booking details and provided evidence within <strong className="text-blue-600">48 hours</strong>.
-               </p>
-            </div>
-            <div className="relative p-6 bg-white/60 rounded-3xl border border-white shadow-sm hover:shadow-md transition-shadow">
-               <span className="absolute -top-3 -left-2 w-8 h-8 flex items-center justify-center bg-slate-900 text-white text-xs font-black rounded-xl">02</span>
-               <p className="text-sm font-medium text-slate-600 leading-relaxed pt-2">
-                 You'll receive a confirmation email at <strong className="text-blue-600">{submission.email}</strong> with a deep-link to track your refund status.
-               </p>
+            
+            {/* Next Steps */}
+            <div className="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-100">
+              <p className="font-bold text-deluxe-navy mb-4 uppercase text-xs tracking-widest">Next Steps</p>
+              <ul className="space-y-3 text-sm text-gray-700">
+                <li className="flex items-start">
+                  <span className="inline-block w-6 text-deluxe-blue font-bold">01</span>
+                  <span>Our guest experience team will review your request within <strong>2-3 business days</strong>.</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="inline-block w-6 text-deluxe-blue font-bold">02</span>
+                  <span>You will receive updates via email at <strong>{submission.email}</strong>.</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="inline-block w-6 text-deluxe-blue font-bold">03</span>
+                  <span>For urgent inquiries, reference ticket <strong className="font-mono">{submission.ticketNumber}</strong>.</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
       </div>
     </div>
-  );
-}
-
-function SummaryItem({ icon, label, value, isBadge }) {
-  return (
-    <div className="flex items-start space-x-4 animate-slide-in group">
-      <div className="p-3 bg-white text-slate-400 rounded-2xl border border-slate-100 group-hover:text-blue-500 group-hover:border-blue-100 group-hover:bg-blue-50 transition-all duration-300 shadow-sm">
-        {icon}
-      </div>
-      <div>
-        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em] mb-0.5">{label}</p>
-        {isBadge ? (
-          <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-black border border-blue-100">
-            {value}
-          </span>
-        ) : (
-          <p className="text-slate-800 font-bold tracking-tight">{value}</p>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function ActionButton({ icon, label, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className="flex flex-col items-center justify-center p-6 space-y-3 rounded-3xl bg-white/50 border border-white hover:border-blue-200 hover:bg-white hover:text-blue-600 group transition-all hover:shadow-xl hover:-translate-y-1 backdrop-blur-sm"
-    >
-      <div className="p-3 bg-slate-50 text-slate-400 rounded-2xl group-hover:bg-blue-50 group-hover:text-blue-500 border border-transparent group-hover:border-blue-100 transition-all">
-        {icon}
-      </div>
-      <span className="text-[10px] font-black uppercase tracking-[0.2em]">{label}</span>
-    </button>
   );
 }

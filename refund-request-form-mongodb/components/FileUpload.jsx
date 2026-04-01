@@ -1,155 +1,112 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { Upload, X, FileText, Image as ImageIcon, CheckCircle2, Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { Upload, X, FileImage, FileText, CheckCircle } from 'lucide-react';
 
 export default function FileUpload({ onFileSelect, accept = 'image/*,.pdf', maxSize = 10 * 1024 * 1024 }) {
   const [file, setFile] = useState(null);
   const [error, setError] = useState('');
   const [uploading, setUploading] = useState(false);
 
-  const onDrop = useCallback(async (acceptedFiles) => {
-    const selectedFile = acceptedFiles[0];
+  const handleFileChange = async (e) => {
+    const selectedFile = e.target.files[0];
+    setError('');
+    
     if (!selectedFile) return;
-
+    
     if (selectedFile.size > maxSize) {
-      setError(`File is too large. Maximum size is ${maxSize / (1024 * 1024)}MB.`);
+      setError(`File too large. Maximum size is ${maxSize / (1024 * 1024)}MB`);
       return;
     }
-
+    
     setUploading(true);
-    setError('');
-
-    const formData = new FormData();
-    formData.append('file', selectedFile);
-
+    setFile(selectedFile);
+    
     try {
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
-
+      
       const result = await response.json();
-
+      
       if (result.success) {
-        setFile({
-          name: selectedFile.name,
-          size: selectedFile.size,
-          type: selectedFile.type,
-          url: result.url,
+        onFileSelect({
+          file: selectedFile,
+          url: result.url
         });
-        onFileSelect(result);
       } else {
-        setError(result.error || 'Upload failed');
+        throw new Error(result.error || 'Upload failed');
       }
-    } catch (err) {
-      setError('Failed to upload file. Please try again.');
+    } catch (error) {
+      setError(error.message);
+      setFile(null);
+      onFileSelect(null);
     } finally {
       setUploading(false);
     }
-  }, [maxSize, onFileSelect]);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: accept ? accept.split(',').reduce((acc, curr) => ({ ...acc, [curr]: [] }), {}) : undefined,
-    maxFiles: 1,
-    disabled: !!file || uploading,
-  });
+  };
 
   const removeFile = () => {
     setFile(null);
-    onFileSelect(null);
     setError('');
-  };
-
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
-
-  const getFileIcon = (type) => {
-    if (type?.includes('image')) return <ImageIcon className="h-8 w-8 text-blue-500" />;
-    return <FileText className="h-8 w-8 text-indigo-500" />;
+    onFileSelect(null);
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {!file ? (
-        <div
-          {...getRootProps()}
-          className={`relative group cursor-pointer transition-all duration-300 rounded-2xl border-2 border-dashed
-            ${isDragActive 
-              ? 'border-blue-500 bg-blue-50/50 scale-[1.01]' 
-              : 'border-slate-200 hover:border-blue-400 hover:bg-slate-50/50'
-            }
-            ${uploading ? 'opacity-50 cursor-not-allowed' : ''}
-          `}
-        >
-          <input {...getInputProps()} />
-          <div className="p-8 flex flex-col items-center justify-center text-center space-y-4">
-            <div className={`p-4 rounded-2xl transition-all duration-300 
-              ${isDragActive ? 'bg-blue-100 scale-110' : 'bg-slate-100 group-hover:bg-blue-50'}`}>
-              <Upload className={`h-8 w-8 ${isDragActive ? 'text-blue-600' : 'text-slate-500'}`} />
-            </div>
-            
-            {uploading ? (
-              <div className="flex items-center space-x-2 text-blue-600 font-medium tracking-tight">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Processing data...</span>
-              </div>
-            ) : (
-              <div className="space-y-1">
-                <p className="text-sm font-black text-slate-700 uppercase tracking-widest">
-                  {isDragActive ? 'Release Now' : 'Drop Evidence'}
-                </p>
-                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-                  or <span className="text-blue-600 underline underline-offset-4 decoration-blue-200">Select locally</span>
-                </p>
-              </div>
-            )}
-          </div>
+        <div className="relative">
+          <input
+            type="file"
+            onChange={handleFileChange}
+            accept={accept}
+            disabled={uploading}
+            className="w-full px-5 py-3 border-2 border-dashed border-gray-200 rounded-lg 
+                       file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 
+                       file:text-sm file:font-bold file:bg-deluxe-blue file:text-white
+                       hover:file:bg-deluxe-navy cursor-pointer
+                       focus:outline-none focus:ring-2 focus:ring-deluxe-blue/20"
+          />
+          <p className="text-[10px] uppercase font-bold text-gray-500 mt-2 tracking-wider">
+            Supports images and PDFs (Max {maxSize / (1024 * 1024)}MB)
+          </p>
+          {uploading && <p className="text-sm text-deluxe-blue mt-2 font-bold animate-pulse">Uploading...</p>}
         </div>
       ) : (
-        <div className="animate-fade-in glass-card p-5 rounded-2xl flex items-center justify-between border-blue-100 bg-white/60">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 shadow-inner">
-              {getFileIcon(file.type)}
-            </div>
-            <div>
-              <p className="text-sm font-black text-slate-800 truncate max-w-[200px] tracking-tight">
-                {file.name}
-              </p>
-              <div className="flex items-center space-x-2 mt-0.5">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                  {formatFileSize(file.size)}
-                </span>
-                <span className="h-1 w-1 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></span>
-                <span className="flex items-center text-[10px] font-black text-emerald-600 uppercase tracking-widest">
-                   Analyzed & Ready
-                </span>
+        <div className="border border-blue-100 rounded-lg p-4 bg-blue-50/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              {file.type.startsWith('image/') ? (
+                <FileImage className="h-6 w-6 text-deluxe-blue" />
+              ) : (
+                <FileText className="h-6 w-6 text-deluxe-blue" />
+              )}
+              <div>
+                <p className="text-sm font-bold text-gray-900">{file.name}</p>
+                <p className="text-xs text-gray-500">
+                  {(file.size / 1024 / 1024).toFixed(2)} MB
+                </p>
               </div>
             </div>
+            <button
+              onClick={removeFile}
+              className="text-gray-400 hover:text-red-500 transition"
+              type="button"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
-          <button
-            onClick={removeFile}
-            className="p-2.5 hover:bg-red-50 text-slate-300 hover:text-red-500 rounded-xl transition-all border border-transparent hover:border-red-100"
-            title="Remove attachment"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center space-x-2 mt-2">
+            <CheckCircle className="h-4 w-4 text-deluxe-blue" />
+            <p className="text-xs text-deluxe-blue font-bold">File uploaded successfully</p>
+          </div>
         </div>
       )}
-
-      {error && (
-        <div className="animate-fade-in text-[10px] font-black text-red-500 uppercase tracking-widest flex items-center bg-red-50 p-3 rounded-xl border border-red-100">
-          <div className="w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center mr-3 text-[10px]">!</div>
-          {error}
-        </div>
-      )}
+      {error && <p className="text-xs text-red-600 font-bold mt-1 tracking-tight">{error}</p>}
     </div>
   );
 }

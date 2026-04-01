@@ -2,102 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
-}
-
-body {
-  @apply text-slate-900 antialiased selection:bg-blue-100 selection:text-blue-900;
-  background: radial-gradient(circle at top right, #f8fafc, #f1f5f9);
-}
-
-/* Custom Glassmorphism Utility */
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-}
-
-/* Animated Background Blobs */
-.blob {
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.1) 100%);
-  filter: blur(80px);
-  border-radius: 50%;
-  z-index: -1;
-  animation: blob-float 20s infinite alternate;
-}
-
-@keyframes blob-float {
-  from { transform: translate(-10%, -10%) scale(1); }
-  to { transform: translate(10%, 10%) scale(1.1); }
-}
-
-/* Input Styling */
-input, select, textarea {
-  @apply transition-all duration-200 outline-none;
-}
-
-input:focus, select:focus, textarea:focus {
-  @apply ring-4 ring-blue-500/10 border-blue-500 bg-white/80;
-}
-
-/* Custom Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideInRight {
-  from { opacity: 0; transform: translateX(20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-.animate-slide-in {
-  animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-slate-200 rounded-full hover:bg-slate-300 transition-colors;
-}
-
-/* Success Card Header Gradient */
-.success-gradient {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.primary-gradient {
-  background: linear-gradient(135deg, #3b82f6 0%, #4f46e5 100%);
-}
-
-/* Print styles */
-@media print {
-  .no-print {
-    display: none !important;
+@layer base {
+  /* Custom Fonts */
+  .font-display {
+    font-family: var(--font-playfair);
+  }
+  
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #C6A43F;
+    border-radius: 10px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #a8862e;
+  }
+  
+  /* Form Styles */
+  input, textarea, select {
+    transition: all 0.2s ease;
+  }
+  
+  /* Print Styles */
+  @media print {
+    button, .no-print {
+      display: none !important;
+    }
+    body {
+      background: white !important;
+    }
+    .bg-gradient-to-br {
+      background: white !important;
+    }
   }
 }
 
+/* Deluxe Homes Color Palette */
+:root {
+  --deluxe-navy: #002B5C;
+  --deluxe-blue: #2EB2E8;
+  --deluxe-light: #F8F9FA;
+  --deluxe-grey: #6C757D;
+}
+
 @layer components {
+  .form-input {
+    @apply w-full px-5 py-3 pl-12 border border-gray-200 rounded-lg 
+           focus:outline-none focus:ring-2 focus:ring-deluxe-blue/20 focus:border-deluxe-blue 
+           transition-all duration-200 bg-white
+           placeholder:text-gray-400;
+  }
+  
+  .form-label {
+    @apply block text-sm font-bold text-deluxe-navy mb-2;
+  }
+  
   .btn-primary {
-    @apply primary-gradient text-white px-4 py-2 rounded-xl font-bold hover:shadow-lg transition-all active:scale-95;
+    @apply w-full bg-deluxe-blue text-white py-4 px-6 rounded-lg 
+           hover:bg-deluxe-navy transition-all duration-300
+           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-deluxe-blue 
+           disabled:opacity-50 disabled:cursor-not-allowed
+           font-bold uppercase tracking-wider shadow-md;
+  }
+  
+  .error-text {
+    @apply text-red-600 text-xs mt-1 font-bold;
   }
 }

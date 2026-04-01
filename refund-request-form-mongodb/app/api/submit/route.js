@@ -29,7 +29,7 @@ export async function POST(request) {
     // Connect to MongoDB
     const client = await clientPromise;
     const db = client.db(process.env.MONGODB_DB || 'refund_requests');
-    const collection = db.collection('refund_requests');
+    const collection = db.collection('refunds');
     
     // Generate ticket number
     const ticketNumber = generateTicketNumber();
@@ -104,7 +104,7 @@ export async function GET(request) {
     
     const client = await clientPromise;
     const db = client.db(process.env.MONGODB_DB || 'refund_requests');
-    const collection = db.collection('refund_requests');
+    const collection = db.collection('refunds');
     
     const submissions = await collection.find({})
       .sort({ createdAt: -1 })
