@@ -1,21 +1,22 @@
-# Guest Refund Request Form
+# Deluxe Stays Guest Refund Request Form
 
-A production-ready web application for property management companies to handle guest refund requests.
+A production-ready web application for property management companies to handle guest refund requests. This application features a premium user interface with glassmorphism design, smooth micro-animations, and robust data management.
 
 ## 🚀 Features
 
 - ✅ **Complete Form** - 6 fields with validation
+- ✅ **Premium UI/UX** - Modern design elements including glassmorphism and refined typography
 - ✅ **Conditional Logic** - 90-day warning banner
 - ✅ **File Upload** - Support for images and PDFs
-- ✅ **Data Persistence** - MongoDB database storage
+- ✅ **Data Persistence** - Supabase integration with local JSON file fallback
 - ✅ **Mobile Responsive** - Works on all devices
 - ✅ **Success Summary** - Download/Print/Email options
 - ✅ **Auto Ticket Numbers** - Unique REF-YYYYMMDD-XXXX format
 
 ## 📋 Requirements
 
-- Node.js 18+ 
-- MongoDB Atlas account (free tier)
+- Node.js 18+
+- Supabase account (free tier) for database storage
 - Vercel account (for deployment)
 
 ## 🛠️ Installation
@@ -23,7 +24,7 @@ A production-ready web application for property management companies to handle g
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/refund-request-form-mongodb.git
+git clone https://github.com/yourusername/deluxe-stays-refund-form.git
 cd refund-request-form-mongodb
 ```
 
@@ -33,22 +34,27 @@ cd refund-request-form-mongodb
 npm install
 ```
 
-### 3. Set up MongoDB Atlas
+### 3. Set up Supabase
 
-1. Create account at [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-2. Create a free cluster (M0)
-3. Create database user and password
-4. Add IP whitelist (0.0.0.0/0 for production)
-5. Get connection string
+1. Create an account at [Supabase](https://supabase.com)
+2. Create a new project
+3. Access your project settings -> API to get your URL and anon key
+4. Create a table named `refund_requests` with appropriate columns based on the Database Schema below or use the SQL Editor to run your setup script.
 
 ### 4. Configure environment variables
 
 Create `.env.local`:
 
 ```bash
-MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/refund_requests
-MONGODB_DB=refund_requests
+# Supabase Connection
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+
+# App Configuration
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_NAME="Deluxe Stays"
 ```
+*(Note: If Supabase connection fails or is omitted, the application will gracefully fall back to saving data locally in `data/submissions.json`.)*
 
 ### 5. Run development server
 
@@ -71,22 +77,25 @@ Open [http://localhost:3000](http://localhost:3000)
 refund-request-form-mongodb/
 ├── app/
 │   ├── api/
-│   │   ├── submit/route.js    # Form submission API
+│   │   ├── submit/route.js    # Form submission API (Supabase/Local)
 │   │   └── upload/route.js    # File upload API
-│   ├── layout.js               # Root layout
-│   └── page.js                 # Main form
+│   ├── layout.js              # Root layout
+│   └── page.js                # Main form UI
 ├── components/
-│   ├── FileUpload.jsx          # File upload component
-│   ├── SuccessSummary.jsx      # Success page
-│   └── WarningBanner.jsx       # Warning banner
+│   ├── FileUpload.jsx         # File upload component
+│   ├── SuccessSummary.jsx     # Success page
+│   └── WarningBanner.jsx      # Warning banner
+├── data/
+│   └── submissions.json       # Local fallback database
 ├── lib/
-│   ├── mongodb.js              # Database connection
-│   ├── validation.js           # Form validation
-│   └── dateUtils.js            # Date utilities
+│   ├── supabase.js            # Supabase connection
+│   ├── db.js                  # Legacy Mongoose connection (if still in use)
+│   ├── validation.js          # Form validation
+│   └── dateUtils.js           # Date utilities
 ├── models/
-│   └── RefundRequest.js        # Data model
+│   └── RefundRequest.js       # Legacy Mongoose data model
 └── public/
-    └── uploads/                # Uploaded files
+    └── uploads/               # Uploaded files
 ```
 
 ## 🔧 API Endpoints
@@ -94,7 +103,7 @@ refund-request-form-mongodb/
 ### POST /api/submit
 Submit refund request
 - Body: `{ fullName, email, bookingReference, bookingDate, refundReason, additionalDetails, evidenceUrl }`
-- Response: `{ success, data: { ticketNumber, ... } }`
+- Response: `{ success, data: { ticketNumber, dbStatus, ... } }`
 
 ### POST /api/upload
 Upload evidence file
@@ -102,28 +111,24 @@ Upload evidence file
 - Response: `{ success, url }`
 
 ### GET /api/submit
-View submissions (admin only)
-- Header: `Authorization: Bearer {token}`
+View submissions
+- Returns a combined array of Supabase and local JSON fallback submissions.
 
-## 📊 Database Schema
+## 📊 Database Schema (Supabase)
 
-```javascript
-{
-  ticketNumber: String (unique),
-  fullName: String,
-  email: String,
-  bookingReference: String,
-  bookingDate: Date,
-  refundReason: String,
-  additionalDetails: String,
-  evidenceUrl: String,
-  status: String (pending/approved/denied),
-  ipAddress: String,
-  userAgent: String,
-  createdAt: Date,
-  updatedAt: Date
-}
-```
+The `refund_requests` table should include:
+
+- `id` (uuid, primary key)
+- `ticket_number` (text, unique)
+- `full_name` (text)
+- `email` (text)
+- `booking_reference` (text)
+- `booking_date` (date)
+- `refund_reason` (text)
+- `additional_details` (text, nullable)
+- `evidence_url` (text, nullable)
+- `status` (text, default 'pending')
+- `created_at` (timestamp with time zone)
 
 ## 🧪 Testing
 
