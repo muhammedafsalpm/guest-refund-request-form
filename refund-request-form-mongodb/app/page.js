@@ -15,7 +15,8 @@ import {
   FileText, 
   Send,
   Shield,
-  Star
+  Star,
+  Loader2
 } from 'lucide-react';
 
 export default function RefundForm() {
@@ -122,46 +123,62 @@ export default function RefundForm() {
   return (
     <div className="min-h-screen bg-deluxe-light font-sans">
       {/* Hero Section */}
-      <div className="relative bg-deluxe-navy text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black opacity-20"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-full px-5 py-2 mb-8 border border-white/20">
-            <Star className="h-4 w-4 text-deluxe-blue fill-current" />
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-white">Guest First Commitment</span>
+      <div className="relative text-white overflow-hidden min-h-[60vh] flex items-center">
+        {/* Background Image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105 transition-transform duration-1000"
+          style={{ backgroundImage: "url('/hero-bg.jpg')" }}
+        ></div>
+        {/* Overlay - Branded Navy with slight transparency */}
+        <div className="absolute inset-0 bg-gradient-to-b from-deluxe-navy/80 via-deluxe-navy/70 to-deluxe-navy/90 backdrop-blur-[1px]"></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center w-full">
+          <div className="inline-flex items-center space-x-2 bg-white/10 backdrop-blur-md rounded-full px-5 py-2 mb-8 border border-white/20 shadow-xl">
+            <Star className="h-4 w-4 text-deluxe-blue fill-current animate-pulse" />
+            <span className="text-xs font-bold uppercase tracking-[0.25em] text-white">Guest First Commitment</span>
           </div>
-          <h1 className="text-5xl md:text-6xl font-display font-bold mb-6 tracking-tight">
+          <h1 className="text-5xl md:text-7xl font-display font-bold mb-8 tracking-tight drop-shadow-2xl">
             Guest Refund Request
           </h1>
-          <p className="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed font-light opacity-90">
+          <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed font-light drop-shadow-lg">
             Submit your refund request and our dedicated experience team will review it promptly with full transparency.
           </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-6 text-xs font-bold uppercase tracking-widest text-blue-200">
-            <div className="flex items-center space-x-2">
-              <Shield className="h-4 w-4" />
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-xs font-bold uppercase tracking-widest text-white/80">
+            <div className="flex items-center space-x-2 bg-black/20 px-3 py-1.5 rounded-lg backdrop-blur-sm">
+              <Shield className="h-4 w-4 text-deluxe-blue" />
               <span>Secure Portal</span>
             </div>
-            <div className="w-1 h-1 bg-white/30 rounded-full"></div>
-            <div>Fast Processing</div>
-            <div className="w-1 h-1 bg-white/30 rounded-full"></div>
-            <div>24/7 Priority Support</div>
+            <div className="flex items-center space-x-2 bg-black/20 px-3 py-1.5 rounded-lg backdrop-blur-sm">
+              <div className="w-1.5 h-1.5 bg-deluxe-blue rounded-full animate-ping"></div>
+              <span>Fast Processing</span>
+            </div>
+            <div className="flex items-center space-x-2 bg-black/20 px-3 py-1.5 rounded-lg backdrop-blur-sm">
+              <span className="text-deluxe-blue font-black">24/7</span>
+              <span>Priority Support</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Form Section */}
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 -mt-10 mb-20">
-        <div className="bg-white rounded-lg shadow-2xl overflow-hidden border border-gray-100 animate-fade-up">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 -mt-24 relative z-10 mb-20">
+        <div className="bg-white rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,43,92,0.15)] overflow-hidden border border-white/40 animate-fade-up">
           {/* Form Header */}
-          <div className="bg-gray-50 px-8 py-6 border-b border-gray-100">
-            <div className="flex items-center justify-between">
+          <div className="bg-white px-8 py-8 border-b border-gray-100 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="w-1.5 h-12 bg-deluxe-blue rounded-full"></div>
               <div>
-                <h2 className="text-xl font-bold text-deluxe-navy uppercase tracking-wider">Refund Details</h2>
-                <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest">Step 1 of 1 • Required fields *</p>
+                <h2 className="text-2xl font-bold text-deluxe-navy uppercase tracking-widest">Refund Details</h2>
+                <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-[0.3em] font-medium">Official Submission Portal • Step 1 of 1</p>
               </div>
+            </div>
+            <div className="hidden md:block">
+              <div className="text-[10px] text-gray-400 uppercase tracking-widest text-right">Reference No.</div>
+              <div className="text-xs font-mono text-gray-400">DX-TMP-2026</div>
             </div>
           </div>
           
-          <form onSubmit={handleSubmit} className="p-8 md:p-10 space-y-8">
+          <form onSubmit={handleSubmit} className="p-8 md:p-12 space-y-10 bg-gradient-to-b from-white to-gray-50/30">
             {/* Error Alert */}
             {submitError && (
               <div className="bg-red-50 border-l-4 border-red-600 p-5 rounded-lg flex items-center space-x-4">
@@ -179,8 +196,8 @@ export default function RefundForm() {
                 <label htmlFor="fullName" className="form-label">
                   Full Name *
                 </label>
-                <div className="relative">
-                  <User className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+                <div className="relative group">
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-deluxe-blue transition-colors duration-200" />
                   <input
                     type="text"
                     id="fullName"
@@ -200,8 +217,8 @@ export default function RefundForm() {
                 <label htmlFor="email" className="form-label">
                   Email Address *
                 </label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+                <div className="relative group">
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-deluxe-blue transition-colors duration-200" />
                   <input
                     type="email"
                     id="email"
@@ -223,8 +240,8 @@ export default function RefundForm() {
                 <label htmlFor="bookingReference" className="form-label">
                   Booking Reference *
                 </label>
-                <div className="relative">
-                  <Hash className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+                <div className="relative group">
+                  <Hash className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-deluxe-blue transition-colors duration-200" />
                   <input
                     type="text"
                     id="bookingReference"
@@ -244,8 +261,8 @@ export default function RefundForm() {
                 <label htmlFor="bookingDate" className="form-label">
                   Booking Date *
                 </label>
-                <div className="relative">
-                  <Calendar className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+                <div className="relative group">
+                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-deluxe-blue transition-colors duration-200" />
                   <input
                     type="date"
                     id="bookingDate"
@@ -266,8 +283,8 @@ export default function RefundForm() {
               <label htmlFor="refundReason" className="form-label">
                 Refund Reason *
               </label>
-              <div className="relative">
-                <Tag className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+              <div className="relative group">
+                <Tag className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 group-focus-within:text-deluxe-blue transition-colors duration-200" />
                 <select
                   id="refundReason"
                   name="refundReason"
@@ -282,7 +299,7 @@ export default function RefundForm() {
                   <option value="Personal Reasons">Personal Reasons (Change of plans, emergency)</option>
                   <option value="Other">Other (Please specify in details)</option>
                 </select>
-                <div className="absolute right-4 top-4 pointer-events-none text-gray-400">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
                   <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                 </div>
               </div>
@@ -294,15 +311,15 @@ export default function RefundForm() {
               <label htmlFor="additionalDetails" className="form-label">
                 Additional Context
               </label>
-              <div className="relative">
-                <FileText className="absolute left-4 top-3.5 h-5 w-5 text-gray-400" />
+              <div className="relative group">
+                <FileText className="absolute left-4 top-5 h-5 w-5 text-gray-400 group-focus-within:text-deluxe-blue transition-colors duration-200" />
                 <textarea
                   id="additionalDetails"
                   name="additionalDetails"
                   rows={5}
                   value={formData.additionalDetails}
                   onChange={handleInputChange}
-                  className="w-full px-5 py-4 pl-12 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-deluxe-blue/20 focus:border-deluxe-blue transition-all"
+                  className="form-input pl-12 h-40 resize-none"
                   placeholder="Tell us more about your request so we can assist you better..."
                   disabled={submitting}
                 />
@@ -331,12 +348,10 @@ export default function RefundForm() {
                 {submitting ? (
                   <span className="flex items-center justify-center">
                     <Loader2 className="animate-spin h-5 w-5 mr-3" />
-                    Processing Request...
+                    Processing...
                   </span>
                 ) : (
-                  <span className="flex items-center justify-center uppercase tracking-[0.2em] font-bold">
-                    Submit Request
-                  </span>
+                  <span>Submit Request</span>
                 )}
               </button>
             </div>

@@ -1,4 +1,6 @@
-import clientPromise from '@/lib/mongodb';
+import { supabase } from '@/lib/supabase';
+import { writeFile, readFile, mkdir } from 'fs/promises';
+import path from 'path';
 import { NextResponse } from 'next/server';
 import { validateForm } from '@/lib/validation';
 
@@ -26,60 +28,89 @@ export async function POST(request) {
       );
     }
     
-    // Connect to MongoDB
-    const client = await clientPromise;
-    const db = client.db(process.env.MONGODB_DB || 'refund_requests');
-    const collection = db.collection('refunds');
-    
     // Generate ticket number
     const ticketNumber = generateTicketNumber();
     
-    // Get IP address
-    const ipAddress = request.headers.get('x-forwarded-for') || 
-                     request.headers.get('x-real-ip') || 
-                     'unknown';
-    
-    // Create submission object
     const submission = {
-      ticketNumber,
-      fullName: body.fullName.trim(),
+      ticket_number: ticketNumber,
+      full_name: body.fullName.trim(),
       email: body.email.trim().toLowerCase(),
-      bookingReference: body.bookingReference.trim(),
-      bookingDate: new Date(body.bookingDate),
-      refundReason: body.refundReason,
-      additionalDetails: body.additionalDetails ? body.additionalDetails.trim() : '',
-      evidenceUrl: body.evidenceUrl || null,
+      booking_reference: body.bookingReference.trim(),
+      booking_date: body.bookingDate,
+      refund_reason: body.refundReason,
+      additional_details: body.additionalDetails ? body.additionalDetails.trim() : '',
+      evidence_url: body.evidenceUrl || null,
       status: 'pending',
-      ipAddress,
-      userAgent: request.headers.get('user-agent') || 'unknown',
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      created_at: new Date().toISOString()
     };
+
+    let supabaseError = null;
+    let supabaseData = null;
+
+    // Try to save to Supabase
+    try {
+      const { data, error } = await supabase
+        .from('refund_requests')
+        .insert([submission])
+        .select()
+        .single();
+      
+      if (error) {
+        supabaseError = error.message;
+        console.error('❌ Supabase insertion failed:', error.message);
+      } else {
+        supabaseData = data;
+        console.log('✅ Supabase insertion successful');
+      }
+    } catch (err) {
+      supabaseError = err.message;
+      console.error('📡 Supabase connection error:', err.message);
+    }
+
+    // FALLBACK: Save to local JSON file
+    const dataDir = path.join(process.cwd(), 'data');
+    const dataFile = path.join(dataDir, 'submissions.json');
     
-    // Save to MongoDB
-    const result = await collection.insertOne(submission);
+    try {
+      // Ensure data directory exists
+      await mkdir(dataDir, { recursive: true });
+      
+      let localSubmissions = [];
+      try {
+        const existingData = await readFile(dataFile, 'utf-8');
+        localSubmissions = JSON.parse(existingData);
+      } catch (e) {
+        // File doesn't exist yet
+      }
+      
+      localSubmissions.push({
+        ...submission,
+        id: supabaseData?.id || `local_${Date.now()}`,
+        saved_to_cloud: !supabaseError
+      });
+      
+      await writeFile(dataFile, JSON.stringify(localSubmissions, null, 2));
+      console.log('📝 Submission saved to local data file.');
+    } catch (fileError) {
+      console.error('❌ Local file save failed:', fileError.message);
+      // If even file save fails, we only error if DB also failed
+      if (supabaseError) throw fileError;
+    }
     
     // Return success response
     return NextResponse.json({
       success: true,
       data: {
-        id: result.insertedId,
-        ticketNumber: submission.ticketNumber,
-        createdAt: submission.createdAt,
+        id: supabaseData?.id || `local_${Date.now()}`,
+        ticketNumber: submission.ticket_number,
+        createdAt: submission.created_at,
+        dbStatus: !supabaseError ? 'connected' : 'fallback-active',
         ...body,
       }
     });
     
   } catch (error) {
     console.error('Submission error:', error);
-    
-    // Handle duplicate key error
-    if (error.code === 11000) {
-      return NextResponse.json(
-        { success: false, error: 'Duplicate submission detected. Please try again.' },
-        { status: 409 }
-      );
-    }
     
     return NextResponse.json(
       { success: false, error: 'Failed to submit request. Please try again.' },
@@ -91,27 +122,47 @@ export async function POST(request) {
 // GET endpoint to view submissions (admin only - optional)
 export async function GET(request) {
   try {
-    // Optional: Add authentication here
-    const authHeader = request.headers.get('authorization');
+    let allSubmissions = [];
     
-    // Simple auth check (you should implement proper auth)
-    if (!authHeader || authHeader !== `Bearer ${process.env.ADMIN_TOKEN}`) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
+    // 1. Try to get from Supabase
+    try {
+      const { data, error } = await supabase
+        .from('refund_requests')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+      
+      if (!error && data) {
+        allSubmissions = data.map(item => ({
+          ...item,
+          ticketNumber: item.ticket_number, // Compatibility
+        }));
+      }
+    } catch (dbError) {
+      console.error('📡 Could not fetch from Supabase:', dbError.message);
     }
     
-    const client = await clientPromise;
-    const db = client.db(process.env.MONGODB_DB || 'refund_requests');
-    const collection = db.collection('refunds');
+    // 2. Try to get from Local Fallback
+    try {
+      const dataFile = path.join(process.cwd(), 'data', 'submissions.json');
+      const localData = await readFile(dataFile, 'utf-8');
+      const localSubmissions = JSON.parse(localData);
+      
+      // Merge and remove duplicates (by ticket_number)
+      const existingTickets = new Set(allSubmissions.map(s => s.ticket_number));
+      localSubmissions.forEach(ls => {
+        if (!existingTickets.has(ls.ticket_number)) {
+          allSubmissions.push(ls);
+        }
+      });
+    } catch (fileError) {
+      // Local file might not exist yet
+    }
     
-    const submissions = await collection.find({})
-      .sort({ createdAt: -1 })
-      .limit(100)
-      .toArray();
+    // Sort combined list by date
+    allSubmissions.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     
-    return NextResponse.json({ success: true, data: submissions });
+    return NextResponse.json({ success: true, data: allSubmissions });
   } catch (error) {
     return NextResponse.json(
       { success: false, error: 'Failed to fetch submissions' },

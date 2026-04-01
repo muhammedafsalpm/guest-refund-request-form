@@ -5,10 +5,14 @@
 @layer base {
   /* Custom Fonts */
   .font-display {
-    font-family: var(--font-playfair);
+    font-family: var(--font-nunito);
   }
   
-  /* Custom Scrollbar */
+  body {
+    font-family: var(--font-nunito);
+  }
+  
+  /* Custom Scrollbar - Deluxe Navy/Blue */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -20,12 +24,12 @@
   }
   
   ::-webkit-scrollbar-thumb {
-    background: #C6A43F;
+    background: var(--deluxe-navy);
     border-radius: 10px;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background: #a8862e;
+    background: var(--deluxe-blue);
   }
   
   /* Form Styles */
@@ -57,25 +61,25 @@
 
 @layer components {
   .form-input {
-    @apply w-full px-5 py-3 pl-12 border border-gray-200 rounded-lg 
-           focus:outline-none focus:ring-2 focus:ring-deluxe-blue/20 focus:border-deluxe-blue 
-           transition-all duration-200 bg-white
-           placeholder:text-gray-400;
+    @apply w-full px-5 py-4 pl-12 border border-gray-200 rounded-lg 
+           focus:outline-none focus:ring-4 focus:ring-deluxe-blue/10 focus:border-deluxe-blue 
+           transition-all duration-300 bg-white
+           text-base text-gray-700 placeholder:text-gray-400 placeholder:font-light;
   }
   
   .form-label {
-    @apply block text-sm font-bold text-deluxe-navy mb-2;
+    @apply block text-[15px] font-semibold text-deluxe-navy mb-2.5 tracking-tight uppercase;
   }
   
   .btn-primary {
-    @apply w-full bg-deluxe-blue text-white py-4 px-6 rounded-lg 
-           hover:bg-deluxe-navy transition-all duration-300
-           focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-deluxe-blue 
+    @apply w-full bg-deluxe-blue text-white py-5 px-8 rounded-lg 
+           hover:bg-deluxe-navy transition-all duration-500
+           focus:outline-none focus:ring-4 focus:ring-deluxe-blue/20 
            disabled:opacity-50 disabled:cursor-not-allowed
-           font-bold uppercase tracking-wider shadow-md;
+           font-bold uppercase tracking-[0.25em] shadow-xl text-sm;
   }
   
   .error-text {
-    @apply text-red-600 text-xs mt-1 font-bold;
+    @apply text-red-600 text-xs mt-1.5 font-medium;
   }
 }

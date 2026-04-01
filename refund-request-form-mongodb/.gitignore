@@ -10,15 +10,22 @@ node_modules/
 !.yarn/releases
 !.yarn/versions
 
-# testing
-/coverage
-
 # next.js
-.next/
+/.next/
 /out/
 
 # production
 /build
+
+# localization
+/data/submissions.json
+/data/
+
+# vercel
+.vercel
+
+# uploads - don't commit uploaded files
+/public/uploads/
 
 # misc
 .DS_Store
@@ -34,7 +41,6 @@ yarn-error.log*
 .env*
 
 # vercel
-.vercel
 .vscode/
 .idea/
 Thumbs.db

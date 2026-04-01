@@ -1,14 +1,11 @@
-import { Inter, Playfair_Display } from 'next/font/google';
+import { Nunito_Sans } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({ 
+const nunito = Nunito_Sans({ 
   subsets: ['latin'],
-  variable: '--font-inter',
-});
-
-const playfair = Playfair_Display({ 
-  subsets: ['latin'],
-  variable: '--font-playfair',
+  display: 'swap',
+  variable: '--font-nunito',
+  adjustFontFallback: false,
 });
 
 export const metadata = {
@@ -19,8 +16,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body className={inter.className}>
+    <html lang="en" className={`${nunito.variable}`}>
+      <body className={nunito.className}>
         {children}
       </body>
     </html>

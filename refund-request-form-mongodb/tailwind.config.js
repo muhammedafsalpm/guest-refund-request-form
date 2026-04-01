@@ -16,8 +16,8 @@ module.exports = {
         }
       },
       fontFamily: {
-        'display': ['var(--font-playfair)', 'serif'],
-        'sans': ['var(--font-inter)', 'sans-serif'],
+        'display': ['var(--font-nunito)', 'sans-serif'],
+        'sans': ['var(--font-nunito)', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',
